@@ -36,6 +36,18 @@
             Categories
           </router-link>
         </li>
+        <li>
+          <router-link to="/admin/settings" active-class="bg-slate-100 font-bold text-[#0bbcd4]">
+            <span class="material-symbols-outlined text-[20px]">settings</span> 
+            Settings
+          </router-link>
+        </li>
+        <li>
+          <router-link to="/admin/subscribers" active-class="bg-slate-100 font-bold text-[#0bbcd4]">
+            <span class="material-symbols-outlined text-[20px]">people</span> 
+            Subscribers
+          </router-link>
+        </li>
 
         <li class="menu-title mt-8 text-slate-400 font-bold uppercase tracking-widest text-[10px]">System</li>
         <li>

@@ -114,6 +114,11 @@
               <label class="label"><span class="label-text font-bold text-slate-600">Description</span></label>
               <textarea v-model="form.description" class="textarea textarea-bordered w-full h-32 rounded focus:outline-none focus:border-[#0bbcd4]" placeholder="Write a gorgeous description..."></textarea>
             </div>
+
+            <div class="form-control md:col-span-2">
+              <label class="label"><span class="label-text font-bold text-slate-600">Tags</span></label>
+              <input type="text" v-model="form.tags_input" class="input input-bordered w-full rounded focus:outline-none focus:border-[#0bbcd4]" placeholder="Comma separated tags (e.g. handmade, necklace, silver)" />
+            </div>
             
           </div>
 
@@ -181,7 +186,7 @@ import { supabase } from '../../lib/supabaseClient'
 
 const products = ref([])
 const availableCategories = ref([])
-const form = ref({ id: null, name: '', category_id: '', price: null, discount: null, ordering: 0, stock: 0, is_active: true, description: '', img_url: null, gallery_urls: [] })
+const form = ref({ id: null, name: '', category_id: '', price: null, discount: null, ordering: 0, stock: 0, is_active: true, description: '', img_url: null, gallery_urls: [], tags: [], tags_input: '' })
 const isEditing = ref(false)
 const uploading = ref(false)
 const draggedImageIndex = ref(null)
@@ -230,10 +235,10 @@ const getCategoryName = (id) => {
 const openModal = (prod = null) => {
   if (prod) {
     isEditing.value = true
-    form.value = { ...prod, gallery_urls: prod.gallery_urls || [] }
+    form.value = { ...prod, gallery_urls: prod.gallery_urls || [], tags: prod.tags || [], tags_input: (prod.tags || []).join(', ') }
   } else {
     isEditing.value = false
-    form.value = { id: null, name: '', category_id: '', price: null, discount: null, ordering: 0, stock: 0, is_active: true, description: '', img_url: null, gallery_urls: [] }
+    form.value = { id: null, name: '', category_id: '', price: null, discount: null, ordering: 0, stock: 0, is_active: true, description: '', img_url: null, gallery_urls: [], tags: [], tags_input: '' }
   }
   document.getElementById('product_modal').showModal()
 }
@@ -296,7 +301,8 @@ const saveProduct = async () => {
     is_active: form.value.is_active,
     description: form.value.description,
     img_url: form.value.img_url,
-    gallery_urls: form.value.gallery_urls
+    gallery_urls: form.value.gallery_urls,
+    tags: form.value.tags_input.split(',').map(tag => tag.trim()).filter(tag => tag)
   }
 
   if (isEditing.value) {

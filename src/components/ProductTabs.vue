@@ -1,12 +1,12 @@
 <template>
-  <section class="py-24 bg-white">
+  <section id="collection" class="py-24 bg-white border-t border-[#eee]">
     <!-- Header -->
     <div class="text-center mb-16 px-4">
       <h2 class="text-3xl font-['Playfair_Display',serif] font-light text-[#222] mb-6 tracking-wide">Curated Collection</h2>
       <div class="w-8 h-[1px] bg-[#e0e0e0] mx-auto mb-10"></div>
 
       <!-- Tabs -->
-      <div class="flex flex-wrap justify-center gap-8 md:gap-14 text-[10px] font-bold font-sans tracking-[0.2em] uppercase">
+      <div class="flex flex-wrap justify-center gap-8 md:gap-14 text-[10px] font-bold font-sans tracking-[0.2em] uppercase mb-10">
         <button 
           @click="filterProducts('all')" 
           :class="activeCategoryId === 'all' ? 'text-[#333] border-b border-[#333]' : 'text-[#aaa] hover:text-[#666] transition-colors'"
@@ -22,6 +22,20 @@
           class="pb-1"
         >
           {{ cat.name }}
+        </button>
+      </div>
+
+      <!-- Search Bar -->
+      <div class="max-w-md mx-auto relative">
+        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">search</span>
+        <input 
+          type="text" 
+          v-model="searchQuery" 
+          placeholder="Search pieces, tags, categories..." 
+          class="w-full pl-12 pr-4 py-3 bg-[#fafafa] border border-slate-200 rounded-full focus:outline-none focus:border-[#222] focus:ring-1 focus:ring-[#222] transition-all font-sans text-sm font-light text-[#333]" 
+        />
+        <button v-if="searchQuery" @click="searchQuery = ''" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#222] transition-colors">
+          <span class="material-symbols-outlined text-[18px]">close</span>
         </button>
       </div>
     </div>
@@ -109,9 +123,15 @@
 
             <div class="w-12 h-[1px] bg-[#e0e0e0] mb-8"></div>
 
-            <p class="text-[14px] text-[#666] font-light leading-relaxed mb-10 font-sans">
+            <p class="text-[14px] text-[#666] font-light leading-relaxed mb-6 font-sans">
               {{ selectedProduct.description || 'A beautifully crafted piece designed with elegance in mind.' }}
             </p>
+
+            <div class="flex flex-wrap gap-2 mb-10" v-if="selectedProduct.tags && selectedProduct.tags.length > 0">
+              <span v-for="tag in selectedProduct.tags" :key="tag" class="px-3 py-1 bg-slate-100 text-[#555] text-[10px] uppercase tracking-widest rounded-sm cursor-pointer hover:bg-slate-200 transition-colors" @click="searchQuery = tag; closeModal()">
+                #{{ tag }}
+              </span>
+            </div>
 
             <!-- Pre-order / Buy Button -->
             <button class="w-full py-4 bg-[#222] text-white text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-[#444] transition-colors">
@@ -134,6 +154,7 @@ import { supabase } from '../lib/supabaseClient'
 const products = ref([])
 const categories = ref([])
 const activeCategoryId = ref('all')
+const searchQuery = ref('')
 
 const selectedProduct = ref(null)
 const activeImageIndex = ref(0)
@@ -179,8 +200,25 @@ const filterProducts = (catId) => {
 }
 
 const filteredProducts = () => {
-  if (activeCategoryId.value === 'all') return products.value
-  return products.value.filter(p => p.category_id === activeCategoryId.value)
+  let list = products.value;
+  
+  if (activeCategoryId.value !== 'all') {
+    list = list.filter(p => p.category_id === activeCategoryId.value);
+  }
+
+  if (searchQuery.value.trim()) {
+    const q = searchQuery.value.toLowerCase().trim();
+    list = list.filter(p => {
+      const catName = getCategoryName(p.category_id).toLowerCase();
+      const pName = (p.name || '').toLowerCase();
+      const pDesc = (p.description || '').toLowerCase();
+      const pTags = (p.tags || []).join(' ').toLowerCase();
+
+      return catName.includes(q) || pName.includes(q) || pDesc.includes(q) || pTags.includes(q);
+    });
+  }
+
+  return list;
 }
 
 const prevImage = () => {
@@ -202,6 +240,10 @@ const nextImage = () => {
 const goToImage = (idx) => {
   activeImageIndex.value = idx
   startAutoplay() // Reset timer on manual interaction
+}
+
+const closeModal = () => {
+  document.getElementById('quick_view_modal').close()
 }
 
 const openQuickView = (product) => {

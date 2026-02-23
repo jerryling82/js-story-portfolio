@@ -3,6 +3,8 @@ import HomeView from '../views/HomeView.vue'
 import AdminLayout from '../views/admin/AdminLayout.vue'
 import AdminCategories from '../views/admin/AdminCategories.vue'
 import AdminProducts from '../views/admin/AdminProducts.vue'
+import AdminSettings from '../views/admin/AdminSettings.vue'
+import AdminSubscribers from '../views/admin/AdminSubscribers.vue'
 import AdminLogin from '../views/admin/AdminLogin.vue'
 import { supabase } from '../lib/supabaseClient'
 
@@ -34,6 +36,16 @@ const router = createRouter({
                     path: 'products',
                     name: 'admin-products',
                     component: AdminProducts
+                },
+                {
+                    path: 'subscribers',
+                    name: 'admin-subscribers',
+                    component: AdminSubscribers
+                },
+                {
+                    path: 'settings',
+                    name: 'admin-settings',
+                    component: AdminSettings
                 }
             ]
         }
