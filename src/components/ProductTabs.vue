@@ -49,8 +49,12 @@
           <img :src="product.img_url || 'https://picsum.photos/id/20/600/600'" alt="product image" class="object-cover w-full h-full transition-transform duration-1000 group-hover:scale-105" />
           
           <!-- Discount Badge (Minimalist) -->
-          <div v-if="product.discount" class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm text-[#222] px-3 py-1 rounded-sm text-[10px] uppercase tracking-widest font-bold">
+          <div v-if="product.discount" class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm text-[#222] px-3 py-1 rounded-sm text-[10px] uppercase tracking-widest font-bold z-10">
             -{{ product.discount }}%
+          </div>
+          <!-- Sold Badge -->
+          <div v-if="product.is_sold" class="absolute top-4 left-4 bg-red-600 text-white px-3 py-1 rounded-sm text-[10px] uppercase tracking-widest font-bold z-10 shadow-sm">
+            Sold
           </div>
         </div>
 
@@ -119,6 +123,7 @@
             <div class="flex items-end gap-3 mb-8">
               <span class="text-xl font-light text-[#333] font-sans">${{ Number(selectedProduct.price).toFixed(2) }}</span>
               <span v-if="selectedProduct.discount" class="text-sm text-red-500 font-bold mb-[2px]">(-{{ selectedProduct.discount }}% OFF)</span>
+              <span v-if="selectedProduct.is_sold" class="text-[10px] bg-red-600 text-white font-bold px-2 py-1 rounded-sm tracking-widest uppercase mb-[2px]">SOLD</span>
             </div>
 
             <div class="w-12 h-[1px] bg-[#e0e0e0] mb-8"></div>
@@ -134,8 +139,11 @@
             </div>
 
             <!-- Pre-order / Buy Button -->
-            <button class="w-full py-4 bg-[#222] text-white text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-[#444] transition-colors">
-              Add To Cart
+            <button 
+              class="w-full py-4 bg-[#222] text-white text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-[#444] transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[#222]"
+              :disabled="selectedProduct.is_sold"
+            >
+              {{ selectedProduct.is_sold ? 'Sold Out' : 'Add To Cart' }}
             </button>
           </div>
         </div>

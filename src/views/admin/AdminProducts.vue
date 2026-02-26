@@ -35,7 +35,10 @@
               </div>
             </td>
             <td class="font-bold text-[#333]">
-              <div class="w-48 truncate">{{ prod.name }}</div>
+              <div class="w-48 truncate flex items-center gap-2">
+                <span class="truncate">{{ prod.name }}</span>
+                <span v-if="prod.is_sold" class="badge badge-error badge-sm text-[10px] text-white">SOLD</span>
+              </div>
             </td>
             <td><span class="badge badge-ghost text-xs bg-slate-100">{{ getCategoryName(prod.category_id) }}</span></td>
             <td class="font-mono">${{ Number(prod.price).toFixed(2) }}</td>
@@ -159,10 +162,14 @@
               </div>
             </div>
 
-            <div class="form-control mt-4">
+            <div class="form-control mt-4 space-y-2">
               <label class="cursor-pointer label justify-start gap-4 p-4 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
                 <input type="checkbox" v-model="form.is_active" class="toggle toggle-info toggle-sm" />
                 <span class="label-text font-bold text-slate-600">Active (Visible in Store)</span> 
+              </label>
+              <label class="cursor-pointer label justify-start gap-4 p-4 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
+                <input type="checkbox" v-model="form.is_sold" class="toggle toggle-error toggle-sm" />
+                <span class="label-text font-bold text-slate-600">Is Sold (Mark as Sold Out)</span> 
               </label>
             </div>
 
@@ -186,7 +193,7 @@ import { supabase } from '../../lib/supabaseClient'
 
 const products = ref([])
 const availableCategories = ref([])
-const form = ref({ id: null, name: '', category_id: '', price: null, discount: null, ordering: 0, stock: 0, is_active: true, description: '', img_url: null, gallery_urls: [], tags: [], tags_input: '' })
+const form = ref({ id: null, name: '', category_id: '', price: null, discount: null, ordering: 0, stock: 0, is_active: true, is_sold: false, description: '', img_url: null, gallery_urls: [], tags: [], tags_input: '' })
 const isEditing = ref(false)
 const uploading = ref(false)
 const draggedImageIndex = ref(null)
@@ -235,10 +242,10 @@ const getCategoryName = (id) => {
 const openModal = (prod = null) => {
   if (prod) {
     isEditing.value = true
-    form.value = { ...prod, gallery_urls: prod.gallery_urls || [], tags: prod.tags || [], tags_input: (prod.tags || []).join(', ') }
+    form.value = { ...prod, gallery_urls: prod.gallery_urls || [], tags: prod.tags || [], tags_input: (prod.tags || []).join(', '), is_sold: !!prod.is_sold }
   } else {
     isEditing.value = false
-    form.value = { id: null, name: '', category_id: '', price: null, discount: null, ordering: 0, stock: 0, is_active: true, description: '', img_url: null, gallery_urls: [], tags: [], tags_input: '' }
+    form.value = { id: null, name: '', category_id: '', price: null, discount: null, ordering: 0, stock: 0, is_active: true, is_sold: false, description: '', img_url: null, gallery_urls: [], tags: [], tags_input: '' }
   }
   document.getElementById('product_modal').showModal()
 }
@@ -299,6 +306,7 @@ const saveProduct = async () => {
     stock: form.value.stock || 0,
     ordering: form.value.ordering || 0,
     is_active: form.value.is_active,
+    is_sold: form.value.is_sold,
     description: form.value.description,
     img_url: form.value.img_url,
     gallery_urls: form.value.gallery_urls,
